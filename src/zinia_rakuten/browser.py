@@ -34,12 +34,14 @@ class ZiniaBrowser:
         version: str = "v6",
         headless: bool = False,
         proxy: str | None = None,
+        user_info: dict | None = None,
     ) -> None:
         self.client_path = Path(client_path)
         self.webdriver_path = Path(webdriver_path) if webdriver_path else None
         self.version = version
         self.headless = headless
         self.proxy = proxy
+        self.user_info = user_info  # { company, username, password }
         self._driver: WebDriver | None = None
 
         if not self.client_path.exists():

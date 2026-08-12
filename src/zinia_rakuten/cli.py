@@ -33,15 +33,15 @@ def setup_logging(verbose: bool = False) -> None:
 
 @app.command()
 def login(
-    shop_id: str = typer.Option(..., "--shop-id", "-s", help="店铺ID"),
     config: Optional[Path] = typer.Option(None, "--config", "-c", help="配置文件路径"),
 ) -> None:
-    """登录并验证"""
+    """检测是否已登录"""
     from .config import load_config
     cfg = load_config(config)
-    account = RakutenAccount(ZiniaBrowser(**cfg.browser))
-    account.login(shop_id, cfg.credentials.login_id, cfg.credentials.password)
-    console.print("[green]✓ 登录验证完成[/green]" if account.logged_in else "[red]✗ 登录失败[/red]")
+    with ZiniaBrowser(**cfg.browser) as browser:
+        account = RakutenAccount(browser)
+        account.login()
+        console.print("[green]✓ 登录验证完成[/green]" if account.logged_in else "[red]✗ 登录失败[/red]")
 
 
 @app.command()
@@ -55,7 +55,7 @@ def products(
     cfg = load_config(config)
     with ZiniaBrowser(**cfg.browser) as browser:
         account = RakutenAccount(browser)
-        account.login(cfg.credentials.shop_id, cfg.credentials.login_id, cfg.credentials.password)
+        account.login()
         if search:
             items = account.search_product(search)
         else:
@@ -74,7 +74,7 @@ def orders(
     cfg = load_config(config)
     with ZiniaBrowser(**cfg.browser) as browser:
         account = RakutenAccount(browser)
-        account.login(cfg.credentials.shop_id, cfg.credentials.login_id, cfg.credentials.password)
+        account.login()
         orders = account.list_orders(page=page, status=status or "")
         console.print_json(data=orders)
 
@@ -88,7 +88,7 @@ def inventory(
     cfg = load_config(config)
     with ZiniaBrowser(**cfg.browser) as browser:
         account = RakutenAccount(browser)
-        account.login(cfg.credentials.shop_id, cfg.credentials.login_id, cfg.credentials.password)
+        account.login()
         items = account.list_inventory()
         console.print_json(data=items)
 
@@ -103,7 +103,7 @@ def reviews(
     cfg = load_config(config)
     with ZiniaBrowser(**cfg.browser) as browser:
         account = RakutenAccount(browser)
-        account.login(cfg.credentials.shop_id, cfg.credentials.login_id, cfg.credentials.password)
+        account.login()
         reviews = account.list_reviews(page=page)
         console.print_json(data=reviews)
 
@@ -117,7 +117,7 @@ def dashboard(
     cfg = load_config(config)
     with ZiniaBrowser(**cfg.browser) as browser:
         account = RakutenAccount(browser)
-        account.login(cfg.credentials.shop_id, cfg.credentials.login_id, cfg.credentials.password)
+        account.login()
         data = account.get_shop_dashboard()
         console.print_json(data=data)
 

@@ -29,35 +29,19 @@ class RakutenAccount:
     # ---- 登录 ----
 
     def login(self, shop_id: str, login_id: str, password: str) -> bool:
-        """登录乐天 RMS 后台"""
-        logger.info("正在登录乐天店铺: %s", shop_id)
-        self.browser.open(RAKUTEN_LOGIN_URL)
+        """登录乐天 RMS 后台（由紫鸟 user_info 自动完成）"""
+        logger.info("检查登录态...")
+        self.browser.open(RAKUTEN_RMS_URL)
         time.sleep(2)
 
-        try:
-            # 输入店铺ID
-            self.browser.type_text('input[name="shopId"]', shop_id)
-            # 输入登录ID
-            self.browser.type_text('input[name="userId"]', login_id)
-            # 输入密码
-            self.browser.type_text('input[name="password"]', password)
-            # 点击登录按钮
-            self.browser.click('button[type="submit"]')
-            time.sleep(3)
+        if self._is_logged_in():
+            self.logged_in = True
+            logger.info("已通过紫鸟客户端登录")
+            return True
 
-            # 检查是否登录成功
-            if self._is_logged_in():
-                self.logged_in = True
-                logger.info("登录成功: %s", shop_id)
-                return True
-            else:
-                logger.error("登录失败，请检查账号密码")
-                return False
-
-        except Exception as e:
-            logger.error("登录异常: %s", e)
-            self.browser.screenshot("login_failed.png")
-            return False
+        logger.error("未登录，请检查紫鸟 user_info 配置")
+        self.browser.screenshot("not_logged_in.png")
+        return False
 
     def _is_logged_in(self) -> bool:
         try:

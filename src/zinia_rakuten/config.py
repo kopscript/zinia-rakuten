@@ -19,16 +19,8 @@ class BrowserConfig:
 
 
 @dataclass
-class CredentialsConfig:
-    shop_id: str = ""
-    login_id: str = ""
-    password: str = ""
-
-
-@dataclass
 class AppConfig:
     browser: BrowserConfig = field(default_factory=BrowserConfig)
-    credentials: CredentialsConfig = field(default_factory=CredentialsConfig)
 
 
 def load_config(path: Optional[Path] = None) -> AppConfig:
@@ -45,9 +37,9 @@ def load_config(path: Optional[Path] = None) -> AppConfig:
     with open(path, "r", encoding="utf-8") as f:
         raw = yaml.safe_load(f) or {}
 
+    browser_raw = raw.get("browser", {}) or {}
     return AppConfig(
-        browser=BrowserConfig(**(raw.get("browser", {}) or {})),
-        credentials=CredentialsConfig(**(raw.get("credentials", {}) or {})),
+        browser=BrowserConfig(**browser_raw),
     )
 
 
@@ -60,11 +52,11 @@ def generate_config_template(path: Path) -> None:
             "version": "v6",
             "headless": False,
             "proxy": None,
-        },
-        "credentials": {
-            "shop_id": "你的店铺ID",
-            "login_id": "你的登录ID",
-            "password": "你的密码",
+            "user_info": {
+                "company": "你的企业公司名",
+                "username": "你的用户名",
+                "password": "你的密码",
+            },
         },
     }
 
